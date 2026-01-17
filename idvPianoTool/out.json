@@ -1,0 +1,98 @@
+[
+    {
+        "pitch": "A6",
+        "start_ms": 0.0,
+        "end_ms": 405.41,
+        "duration_ms": 405.41
+    },
+    {
+        "pitch": "A6",
+        "start_ms": 405.41,
+        "end_ms": 810.81,
+        "duration_ms": 405.41
+    },
+    {
+        "pitch": "A6",
+        "start_ms": 810.81,
+        "end_ms": 1216.22,
+        "duration_ms": 405.41
+    },
+    {
+        "pitch": "D6",
+        "start_ms": 1216.22,
+        "end_ms": 2229.73,
+        "duration_ms": 1013.51
+    },
+    {
+        "pitch": "A6",
+        "start_ms": 1216.22,
+        "end_ms": 1824.32,
+        "duration_ms": 608.11
+    },
+    {
+        "pitch": "E6",
+        "start_ms": 1824.32,
+        "end_ms": 2432.43,
+        "duration_ms": 608.11
+    },
+    {
+        "pitch": "C6",
+        "start_ms": 2027.03,
+        "end_ms": 4662.16,
+        "duration_ms": 2635.14
+    },
+    {
+        "pitch": "A6",
+        "start_ms": 2432.43,
+        "end_ms": 2837.84,
+        "duration_ms": 405.41
+    },
+    {
+        "pitch": "D6",
+        "start_ms": 2837.84,
+        "end_ms": 3243.24,
+        "duration_ms": 405.41
+    },
+    {
+        "pitch": "B6",
+        "start_ms": 2837.84,
+        "end_ms": 3648.65,
+        "duration_ms": 810.81
+    },
+    {
+        "pitch": "D6",
+        "start_ms": 3648.65,
+        "end_ms": 4054.05,
+        "duration_ms": 405.41
+    },
+    {
+        "pitch": "C7",
+        "start_ms": 3648.65,
+        "end_ms": 4054.05,
+        "duration_ms": 405.41
+    },
+    {
+        "pitch": "B6",
+        "start_ms": 4054.05,
+        "end_ms": 4864.86,
+        "duration_ms": 810.81
+    },
+    {
+        "pitch": "D6",
+        "start_ms": 4459.46,
+        "end_ms": 4864.86,
+        "duration_ms": 405.41
+    },
+    {
+        "pitch": "G6",
+        "start_ms": 4864.86,
+        "end_ms": 5675.68,
+        "duration_ms": 810.81
+    },
+    {
+        "pitch": "A6",
+        "start_ms": 5675.68,
+        "end_ms": 6486.49,
+        "duration_ms": 810.81
+    }
+]

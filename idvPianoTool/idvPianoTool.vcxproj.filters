@@ -26,5 +26,19 @@
     <ClInclude Include="files.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="json.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="test1.flp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="flp_exporter.exe">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>
