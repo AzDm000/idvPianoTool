@@ -49,5 +49,7 @@
     <None Include="flp_exporter.exe">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="LICENCE" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>
