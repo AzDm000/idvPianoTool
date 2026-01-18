@@ -122,15 +122,19 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="files.cpp" />
     <ClCompile Include="idvPianoTool.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="files.h" />
     <ClInclude Include="json.hpp" />
+    <ClInclude Include="KeyInput.h" />
+    <ClInclude Include="KeyList.h" />
+    <ClInclude Include="Level2Vk.h" />
+    <ClInclude Include="Note.h" />
+    <ClInclude Include="RandomDelay.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

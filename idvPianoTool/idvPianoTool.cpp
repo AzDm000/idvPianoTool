@@ -1,16 +1,33 @@
-ï»¿#pragma once
+#pragma once
 #include <windows.h>
 #include <string>
 #include <iostream>
-#include "files.h"
+#include <fstream>
+#include <vector>
+#include <map>
 #include "json.hpp"
-#include <mmsystem.h>
+#include "RandomDelay.h"
+#include "KeyInput.h"
+#include "Level2Vk.h"
+#include "Note.h"
+#include "KeyList.h"
 
-#pragma comment(lib, "winmm.lib")
 //main1
 using json = nlohmann::json;
 
+// ¾²Ì¬±äÁ¿¶¨ÒåÓë³õÊ¼»¯
+std::mt19937 RandomDelay::gen((unsigned int)time(nullptr));
+std::normal_distribution<double> RandomDelay::dis(0.0, 3.04);// ÆÚÍûÎª0.0£¬±ê×¼²îÎª3.04µÄÕıÌ¬·Ö²¼(90%ÂäÔÚ[-5, 5]Çø¼ä)
+
+int Note::scales[11] = { 0 };//´æ´¢¸÷Òô½×Òô·ûÊı
+std::vector<Note> NoteList;
+
+int Level2Vk::mode = 1;
+std::map<std::pair<char, int>, WORD> Level2Vk::mp1;
+std::map<std::pair<char, int>, WORD> Level2Vk::mp2;//ÁíÒ»ÖÖÀàµÄÀÖÆ÷£¬ÔİÊ±Áô¿Õ
+
 std::string path = "C:\\Users\\Moonlight\\Desktop";
+
 bool IsRunAsAdmin() {
 	BOOL fRet = FALSE;
 	HANDLE hToken = NULL;
@@ -27,10 +44,11 @@ bool IsRunAsAdmin() {
 	}
 	return fRet;
 }
+
 int reachfile(const std::string& command, const std::string& targetpath, json& j) {
 	int flag = std::system(command.c_str());
 	if (flag != 0) {
-		std::cerr << "flpè½¬æ¢å¤±è´¥.\n";
+		std::cerr << "flp×ª»»Ê§°Ü.\n";
 		return -1;
 	}
 	std::ifstream ijson(targetpath);
@@ -48,6 +66,7 @@ int reachfile(const std::string& command, const std::string& targetpath, json& j
 	ijson.close();
 	return 0;
 }
+
 int reachfile(const std::string& targetpath, json& j) {
 	std::ifstream ijson(targetpath);
 	if (!ijson.is_open()) {
@@ -64,16 +83,10 @@ int reachfile(const std::string& targetpath, json& j) {
 	ijson.close();
 	return 0;
 }
-int Note::scales[11] = { 0 };//å­˜å‚¨å„éŸ³é˜¶éŸ³ç¬¦æ•°
-std::vector<Note> NoteList;
-int Level2Vk::mode = 1;
-std::map<std::pair<char, int>, WORD> Level2Vk::mp1;
-std::map<std::pair<char, int>, WORD> Level2Vk::mp2;//å¦ä¸€ç§ç±»çš„ä¹å™¨ï¼Œæš‚æ—¶ç•™ç©º
-std::mt19937 RandomDelay::gen((unsigned int)time(nullptr));
-std::normal_distribution<double> RandomDelay::dis(0.0, 3.04);// æœŸæœ›ä¸º0.0ï¼Œæ ‡å‡†å·®ä¸º3.04çš„æ­£æ€åˆ†å¸ƒ(90%è½åœ¨[-5, 5]åŒºé—´)
+
 int playOnce() {
-	
-	NoteList.clear();//æ¸…é™¤éŸ³ç¬¦åˆ—è¡¨
+
+	NoteList.clear();//Çå³ıÒô·ûÁĞ±í
 
 	std::string exporterpath = "flp_exporter.exe";
 	std::string outpath = "out.json";
@@ -84,7 +97,7 @@ int playOnce() {
 	std::cin >> get;
 	int searchGet = 0;
 	if (get.size() <= 4) {
-		std::cerr << "æ–‡ä»¶æ‰©å±•åæœ‰è¯¯\n";
+		std::cerr << "ÎÄ¼şÀ©Õ¹ÃûÓĞÎó\n";
 		return -1;
 	}
 	if (get[get.size() - 3] == 'f' && get[get.size() - 2] == 'l' && get[get.size() - 1] == 'p') {
@@ -94,19 +107,19 @@ int playOnce() {
 		reachMod = 1;
 	}
 	else {
-		std::cerr << "æ–‡ä»¶æ‰©å±•åæœ‰è¯¯\n";
+		std::cerr << "ÎÄ¼şÀ©Õ¹ÃûÓĞÎó\n";
 		return -1;
 	}
 	json j;
 	if (reachMod == 0) {
 		if (reachfile((exporterpath + ' ' + get + ' ' + outpath).c_str(), outpath, j) != 0) {
-			std::cerr << "ç¨‹åºå·²åœæ­¢è¿è¡Œ\n";
+			std::cerr << "³ÌĞòÒÑÍ£Ö¹ÔËĞĞ\n";
 			return -1;
 		}
 	}
 	else {
 		if (reachfile(outpath, j) != 0) {
-			std::cerr << "ç¨‹åºå·²åœæ­¢è¿è¡Œ\n";
+			std::cerr << "³ÌĞòÒÑÍ£Ö¹ÔËĞĞ\n";
 			return -1;
 		}
 	}
@@ -114,7 +127,7 @@ int playOnce() {
 	KeyList keys;
 
 	//print all json contents;
-	std::cout << "jsonå†…å®¹(pitch, start/ms, end/ms)ï¼š\n(å°å†™å­—æ¯ä»£è¡¨å‡è°ƒ)\n";
+	std::cout << "jsonÄÚÈİ(pitch, start/ms, end/ms)£º\n(Ğ¡Ğ´×ÖÄ¸´ú±íÉıµ÷)\n";
 	for (int i = 0; i < j.size(); i++) {
 		std::cout << j[i]["pitch"] << ' ' << j[i]["start_ms"] << ' ' << j[i]["end_ms"] << '\n';
 	}
@@ -124,7 +137,7 @@ int playOnce() {
 		//tmp.printNote();
 		NoteList.push_back(tmp);
 	}
-	std::cout << "å„éŸ³é˜¶éŸ³ç¬¦æ•°(æŒ‰éŸ³é˜¶åºå·æ’åº):\n";
+	std::cout << "¸÷Òô½×Òô·ûÊı(°´Òô½×ĞòºÅÅÅĞò):\n";
 	for (int i = 0; i < 11; i++) { std::cout << Note::scales[i] << ' '; }
 	int Most = 0;
 	for (int i = 1; i < 11; i++) {
@@ -132,7 +145,7 @@ int playOnce() {
 	}
 	if (Most <= 1)Most = 2;
 	else if (Most >= 9)Most = 8;
-	
+
 	if (Note::scales[Most + 2] != 0 && Note::scales[Most + 2] >= Note::scales[Most - 2] && Note::scales[Most + 1] >= Note::scales[Most - 1]) {
 		Most++;
 	}
@@ -141,30 +154,30 @@ int playOnce() {
 	}
 	std::cout << "\nMost: " << Most << '\n';
 	//return 0;
-	//mp1çš„æŒ‰é”®æ˜ å°„,å–Mostä¸ºä¸­ï¼Œè¶Šç•ŒåŒºåŸŸå°†è¢«åˆ’å…¥åŒé˜¶
+	//mp1µÄ°´¼üÓ³Éä,È¡MostÎªÖĞ£¬Ô½½çÇøÓò½«±»»®ÈëÍ¬½×
 	for (int i = 0; i < Most; i++) {
 		Level2Vk::mp1.insert({ {'C', i}, VK_OEM_COMMA });// ','
 		Level2Vk::mp1.insert({ {'D', i}, VK_OEM_PERIOD });// '.'
 		Level2Vk::mp1.insert({ {'E', i}, VK_OEM_2 });// '/'
-		Level2Vk::mp1.insert({ {'F', i}, 'I'});
-		Level2Vk::mp1.insert({ {'G', i}, 'O'});
-		Level2Vk::mp1.insert({ {'A', i}, 'P'});
+		Level2Vk::mp1.insert({ {'F', i}, 'I' });
+		Level2Vk::mp1.insert({ {'G', i}, 'O' });
+		Level2Vk::mp1.insert({ {'A', i}, 'P' });
 		Level2Vk::mp1.insert({ {'B', i}, VK_OEM_4 }); // '['
 
-		Level2Vk::mp1.insert({ {'c', i}, 'L'});
+		Level2Vk::mp1.insert({ {'c', i}, 'L' });
 		Level2Vk::mp1.insert({ {'d', i}, VK_OEM_1 });// ';'
-		Level2Vk::mp1.insert({ {'f', i}, '9'});
-		Level2Vk::mp1.insert({ {'g', i}, '0'});
+		Level2Vk::mp1.insert({ {'f', i}, '9' });
+		Level2Vk::mp1.insert({ {'g', i}, '0' });
 		Level2Vk::mp1.insert({ {'a', i}, VK_OEM_MINUS });// '-'
 	}
-	for (int i = Most; i < Most+1; i++) {
-		Level2Vk::mp1.insert({ {'C', i}, 'Z'});
-		Level2Vk::mp1.insert({ {'D', i}, 'X'});
-		Level2Vk::mp1.insert({ {'E', i}, 'C'});
-		Level2Vk::mp1.insert({ {'F', i}, 'V'});
-		Level2Vk::mp1.insert({ {'G', i}, 'B'});
-		Level2Vk::mp1.insert({ {'A', i}, 'N'});
-		Level2Vk::mp1.insert({ {'B', i}, 'M'});
+	for (int i = Most; i < Most + 1; i++) {
+		Level2Vk::mp1.insert({ {'C', i}, 'Z' });
+		Level2Vk::mp1.insert({ {'D', i}, 'X' });
+		Level2Vk::mp1.insert({ {'E', i}, 'C' });
+		Level2Vk::mp1.insert({ {'F', i}, 'V' });
+		Level2Vk::mp1.insert({ {'G', i}, 'B' });
+		Level2Vk::mp1.insert({ {'A', i}, 'N' });
+		Level2Vk::mp1.insert({ {'B', i}, 'M' });
 
 		Level2Vk::mp1.insert({ {'c', i}, 'S' });
 		Level2Vk::mp1.insert({ {'d', i}, 'D' });
@@ -172,7 +185,7 @@ int playOnce() {
 		Level2Vk::mp1.insert({ {'g', i}, 'H' });
 		Level2Vk::mp1.insert({ {'a', i}, 'J' });
 	}
-	for (int i = Most+1; i < 11; i++) {
+	for (int i = Most + 1; i < 11; i++) {
 		Level2Vk::mp1.insert({ {'C', i}, 'Q' });
 		Level2Vk::mp1.insert({ {'D', i}, 'W' });
 		Level2Vk::mp1.insert({ {'E', i}, 'E' });
@@ -188,19 +201,19 @@ int playOnce() {
 		Level2Vk::mp1.insert({ {'a', i}, '7' });
 	}
 
-	//å°†éŸ³ç¬¦å‹å…¥keysåºåˆ—
+	//½«Òô·ûÑ¹ÈëkeysĞòÁĞ
 	for (auto& i : NoteList) {
 		keys.pushInput(i);
 	}
 
 	//return 0;
-	std::cout << "--------\nè™šæ‹Ÿé”®ç åºåˆ—(æ’åºå‰):\n";
+	std::cout << "--------\nĞéÄâ¼üÂëĞòÁĞ(ÅÅĞòÇ°):\n";
 	keys.printKeyList();
-	std::cout << "-------\nå·²æŒ‰delayæ’åº:";
+	std::cout << "-------\nÒÑ°´delayÅÅĞò:";
 	keys.sortself();
 	keys.printKeyList();
-	std::cout << "----------\nå‡†å¤‡å¯»æ‰¾ç¬¬äº”äººæ ¼è¿›ç¨‹\n";
-	HWND hd = FindWindowW(nullptr, L"ç¬¬äº”äººæ ¼");
+	std::cout << "----------\n×¼±¸Ñ°ÕÒµÚÎåÈË¸ñ½ø³Ì\n";
+	HWND hd = FindWindowW(nullptr, L"µÚÎåÈË¸ñ");
 	if (!IsWindow(hd)) {
 		std::cerr << "Window not found.\n";
 		return -1;
@@ -211,25 +224,26 @@ int playOnce() {
 	}
 	return 0;
 }
+
 int main() {
-	std::cout << "é’¢ç´å·¥å…·ï¼Œæ”¯æŒè¾“å…¥flpæ–‡ä»¶ä¸jsonæ–‡ä»¶\nflpæ–‡ä»¶å°†å¯¼å‡ºä¸ºout.json\n\n";
+	std::cout << "¸ÖÇÙ¹¤¾ß£¬Ö§³ÖÊäÈëflpÎÄ¼şÓëjsonÎÄ¼ş\nflpÎÄ¼ş½«µ¼³öÎªout.json\n\n";
 	if (!IsRunAsAdmin()) {
-		std::cerr << "è¿›ç¨‹æœªæ‹¥æœ‰ç®¡ç†å‘˜æƒé™ï¼Œè¯·é‡æ–°å¯åŠ¨\n";
+		std::cerr << "½ø³ÌÎ´ÓµÓĞ¹ÜÀíÔ±È¨ÏŞ£¬ÇëÖØĞÂÆô¶¯\n";
 		return 0;
 	}
 	while (1) {
-		std::cout << "è¾“å…¥1è¿›å…¥é€‰æ‹©ï¼Œè¾“å…¥0é€€å‡ºï¼š";
+		std::cout << "ÊäÈë1½øÈëÑ¡Ôñ£¬ÊäÈë0ÍË³ö£º";
 		int get;
 		std::cin >> get;
 		if (get == 0) {
 			break;
 		}
-		else if(get == 1){
+		else if (get == 1) {
 			if (playOnce() != 0) {
-				std::cerr << "æœ¬æ¬¡æ‰§è¡Œå¤±è´¥ã€‚\n\n";
+				std::cerr << "±¾´ÎÖ´ĞĞÊ§°Ü¡£\n\n";
 			}
 			else {
-				std::cout << "æœ¬æ¬¡æ‰§è¡Œå®Œæ¯•ã€‚\n\n";
+				std::cout << "±¾´ÎÖ´ĞĞÍê±Ï¡£\n\n";
 			}
 		}
 		else {
@@ -237,72 +251,3 @@ int main() {
 		}
 	}
 }
-/*
-int main() {
-	int flag = 0;
-	int cnt = 0;
-
-	int inputLen = 12;
-	INPUT* inputs = new INPUT[inputLen];
-	for (int i = 0; i < inputLen; i++) {
-		ZeroMemory(&inputs[i], sizeof(INPUT));
-		inputs[i].type = INPUT_KEYBOARD;
-	}
-	//set inputs here
-	inputs[0].ki.dwFlags = 0;
-	inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
-	inputs[0].ki.wVk = VK_CONTROL;
-	inputs[1].ki.wVk = VK_CONTROL;
-	inputs[2].ki.dwFlags = 0;
-	inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
-	inputs[2].ki.wVk = 'A';
-	inputs[3].ki.wVk = 'A';
-	inputs[4].ki.dwFlags = 0;
-	inputs[5].ki.dwFlags = 0;
-	inputs[4].ki.wVk = VK_CONTROL;
-	inputs[5].ki.wVk = 'S';
-	inputs[6].ki.dwFlags = KEYEVENTF_KEYUP;
-	inputs[7].ki.dwFlags = KEYEVENTF_KEYUP;
-	inputs[6].ki.wVk = 'S';
-	inputs[7].ki.wVk = VK_CONTROL;
-	inputs[8].ki.dwFlags = 0;
-	inputs[9].ki.dwFlags = 0;
-	inputs[8].ki.wVk = VK_MENU;
-	inputs[9].ki.wVk = VK_F4;
-	inputs[10].ki.dwFlags = KEYEVENTF_KEYUP;
-	inputs[11].ki.dwFlags = KEYEVENTF_KEYUP;
-	inputs[10].ki.wVk = VK_MENU;
-	inputs[11].ki.wVk = VK_F4;
-	int inputFlag = 0;
-	//char hdName[] = "æ–°å»ºæ–‡æœ¬æ–‡æ¡£.txt - è®°äº‹æœ¬";
-	HWND hd;
-	std::cout << "input anything to start.";
-	Sleep(200);
-	int a;
-	std::cin >> a;
-	while(cnt < 1000) {
-		hd = FindWindowW(nullptr, L"æ–°å»ºæ–‡æœ¬æ–‡æ¡£.txt - è®°äº‹æœ¬");
-		if (IsWindow(hd)) {
-			SetForegroundWindow(hd);
-			Sleep(1000);
-			for(int i = 0; i < inputLen; i++) {
-				SendInput(1, &inputs[i], sizeof(INPUT));
-				Sleep(100);
-			}
-
-			flag = 1;
-			break;
-		}
-		else {
-			cnt++;
-			Sleep(10);
-		}
-	}
-
-	if (flag == 1) {
-		std::cout << "target window finded!\nCost " << cnt << " time(s) loop.";
-	}
-	else {
-		std::cout << "target window not found!\nCost " << cnt << " times loop.";
-	}
-}*/

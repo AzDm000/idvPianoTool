@@ -18,18 +18,27 @@
     <ClCompile Include="idvPianoTool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="files.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="files.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="json.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomDelay.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyInput.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Level2Vk.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Note.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyList.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
