@@ -176,7 +176,51 @@ int Level2Vk::mode = 1;
 std::map<std::pair<char, int>, WORD> Level2Vk::mp1;
 std::map<std::pair<char, int>, WORD> Level2Vk::mp2;
 int main() {
-	
+	for (int i = 0; i < 6; i++) {
+		Level2Vk::mp1.insert({ {'C', i}, VK_OEM_COMMA });// ','
+		Level2Vk::mp1.insert({ {'D', i}, VK_OEM_PERIOD });// '.'
+		Level2Vk::mp1.insert({ {'E', i}, VK_OEM_2 });// '/'
+		Level2Vk::mp1.insert({ {'F', i}, 'I'});
+		Level2Vk::mp1.insert({ {'G', i}, 'O'});
+		Level2Vk::mp1.insert({ {'A', i}, 'P'});
+		Level2Vk::mp1.insert({ {'B', i}, VK_OEM_4 }); // '['
+
+		Level2Vk::mp1.insert({ {'c', i}, 'L'});
+		Level2Vk::mp1.insert({ {'d', i}, VK_OEM_1 });// ';'
+		Level2Vk::mp1.insert({ {'f', i}, '9'});
+		Level2Vk::mp1.insert({ {'g', i}, '0'});
+		Level2Vk::mp1.insert({ {'a', i}, VK_OEM_MINUS });// '-'
+	}
+	for (int i = 6; i < 7; i++) {
+		Level2Vk::mp1.insert({ {'C', i}, 'Z'});
+		Level2Vk::mp1.insert({ {'D', i}, 'X'});
+		Level2Vk::mp1.insert({ {'E', i}, 'C'});
+		Level2Vk::mp1.insert({ {'F', i}, 'V'});
+		Level2Vk::mp1.insert({ {'G', i}, 'B'});
+		Level2Vk::mp1.insert({ {'A', i}, 'N'});
+		Level2Vk::mp1.insert({ {'B', i}, 'M'});
+
+		Level2Vk::mp1.insert({ {'c', i}, 'S' });
+		Level2Vk::mp1.insert({ {'d', i}, 'D' });
+		Level2Vk::mp1.insert({ {'f', i}, 'G' });
+		Level2Vk::mp1.insert({ {'g', i}, 'H' });
+		Level2Vk::mp1.insert({ {'a', i}, 'J' });
+	}
+	for (int i = 7; i < 10; i++) {
+		Level2Vk::mp1.insert({ {'C', i}, 'Q' });
+		Level2Vk::mp1.insert({ {'D', i}, 'W' });
+		Level2Vk::mp1.insert({ {'E', i}, 'E' });
+		Level2Vk::mp1.insert({ {'F', i}, 'R' });
+		Level2Vk::mp1.insert({ {'G', i}, 'T' });
+		Level2Vk::mp1.insert({ {'A', i}, 'Y' });
+		Level2Vk::mp1.insert({ {'B', i}, 'U' });
+
+		Level2Vk::mp1.insert({ {'c', i}, '2' });
+		Level2Vk::mp1.insert({ {'d', i}, '3' });
+		Level2Vk::mp1.insert({ {'f', i}, '5' });
+		Level2Vk::mp1.insert({ {'g', i}, '6' });
+		Level2Vk::mp1.insert({ {'a', i}, '7' });
+	}
 	std::string exporterpath = "flp_exporter.exe";
 	std::string outpath = "out.json";
 
@@ -195,9 +239,10 @@ int main() {
 	for (int i = 0; i < j.size(); i++) {
 		std::cout << j[i]["pitch"] << ' ' << j[i]["start_ms"] << ' ' << j[i]["end_ms"] << '\n';
 	}
-
+	std::cout << "--------\n";
 	for (int i = 0; i < j.size(); i++) {
 		Note tmp(j[i]["pitch"], j[i]["start_ms"], j[i]["end_ms"]);
+		tmp.printNote();
 		keys.pushInput(tmp);
 	}
 	std::cout << "--------\n";
@@ -205,6 +250,15 @@ int main() {
 	std::cout << "-------\n";
 	keys.sortself();
 	keys.printKeyList();
+	std::cout << "----------\n";
+	HWND hd = FindWindowW(nullptr, L"第五人格");
+	if (!IsWindow(hd)) {
+		std::cerr << "Window not found\n";
+		return -1;
+	}
+	else {
+		keys.print2hd(hd);
+	}
 	return 0;
 }
 /*

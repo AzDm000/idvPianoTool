@@ -56,7 +56,13 @@ public:
 	static std::set<int> scales;
 	Note(std::string l, double s, double e) {
 		level = l[0];
-		scale = l[1];
+		if (l[1] == '#') {
+			level -= ('A' - 'a');
+			scale = l[2] - '0';
+		}
+		else {
+			scale = l[1] - '0';
+		}
 		start = s;
 		end = e;
 		scales.insert(scale);
@@ -102,7 +108,7 @@ public:
 		Sleep(100);
 		SetForegroundWindow(hd);
 		std::cout << "opened\n";
-		Sleep(100);
+		Sleep(1000);
 		LARGE_INTEGER Fre, end;
 		QueryPerformanceFrequency(&Fre);
 		INPUT A;
@@ -116,7 +122,7 @@ public:
 			A.ki.dwFlags = i.dwFlag;
 			A.ki.wVk = i.wVk;
 			QueryPerformanceCounter(&end);
-			deltaT = i.delay - 1.0 * (end.QuadPart - TimeStart.QuadPart) / Fre.QuadPart;
+			deltaT = i.delay - 1000.0 * (end.QuadPart - TimeStart.QuadPart) / Fre.QuadPart;
 			if (deltaT > 1) {
 				Sleep(deltaT);
 			}
