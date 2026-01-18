@@ -5,152 +5,31 @@
 #include "files.h"
 #include "json.hpp"
 #include <mmsystem.h>
+
 #pragma comment(lib, "winmm.lib")
 //main1
 using json = nlohmann::json;
-std::string path = "C:\\Users\\Moonlight\\Desktop";
-/*int main1() {
-	std::string a;
-	wchar_t hdName[] = L"新建文本文档.txt - 记事本";
-	std::cout << "input a char string here:\n";
-	std::cin >> a;
-	KeyList L;
-	for (auto i : a) {
-		if (i >= 'a' && i <= 'z') {
-			L.pushInput((i + 'A' - 'a'), 0);
-			L.pushInput(i + 'A' - 'a', KEYEVENTF_KEYUP);
-		}
-		else if ((i >= '0' && i <= '9')) {
-			L.pushInput(i, 0);
-			L.pushInput(i, KEYEVENTF_KEYUP);
-		}
-	}
-	int maxT = 100;
-	HWND hd;
-	for (int i = 0; i < maxT; i++) {
-		hd = FindWindowW(nullptr, hdName);
-		Sleep(10);
-		if (IsWindow(hd)) {
-			L.print2hd(hd);
-			std::cout << "End main";
-			break;
-		}
-	}
-	return 0;
-}*/
-//main2
-int main2() {
-	INPUT a;
-	HWND hd = FindWindowW(nullptr, L"新建文本文档.txt - 记事本");
-	ZeroMemory(&a, sizeof(a));
-	a.type = INPUT_MOUSE;
-	a.mi.dx = 0;
-	a.mi.dy = 0;
-	a.mi.dwFlags = MOUSEEVENTF_MOVE;
-	for (int i = 0; i < 20; i++) {
-		for (int j = 0; j < 65535; j++) {
-			SendInput(1, &a, sizeof(INPUT));
-			a.mi.dx--;
-			a.mi.dy--;
-			Sleep(10);
-		}
-		a.mi.dx = 0; a.mi.dy = 0;
-	}
-	return 0;
-}
-//main3
-int main3() {
-	SetProcessDPIAware();
-	INPUT a;
-	HWND hd;
-	ZeroMemory(&a, sizeof(INPUT));
-	a.type = INPUT_MOUSE;
-	int WindowWidth = GetSystemMetrics(SM_CXSCREEN);
-	int WindowHeight = GetSystemMetrics(SM_CYSCREEN);
-	int inX, inY;
-	int outX, outY;
-	while (1) {
-		std::cout << "Enter 2 nunbers (-1 to break, -2 to click):\n";
-		std::cin >> inX;
-		if (inX == -1)break;
-		if (inX == -2) {
-			a.mi.dwFlags = MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP;
-			SendInput(1, &a, sizeof(INPUT));
-			continue;
-		}
-		std::cin >> inY;
-		outX = inX * 65535 / (WindowWidth - 1);
-		outY = inY * 65535 / (WindowHeight - 1);
-		std::cout << outX << ' ' << outY << '\n';
-		//hd = FindWindowW(nullptr, L"新建文本文档.txt - 记事本");
-		a.mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
-		a.mi.dx = outX;
-		a.mi.dy = outY;
-		SendInput(1, &a, sizeof(INPUT));
-	}
-	return 0;
-}
-//main4
-int main4() {
-	RegisterHotKey(nullptr, 999, MOD_ALT | MOD_NOREPEAT, 'S');
-	RegisterHotKey(nullptr, 1000, MOD_ALT | MOD_NOREPEAT, 'Q');
-	MSG msg;
-	while (1) {
-		std::cout << "loop in\n";
-		GetMessage(&msg, nullptr, 0, 0);
-		std::cout << "here\n";
-		if (msg.message == WM_HOTKEY) {
-			if (msg.wParam == 999) {
-				std::cout << "Status : Active\n";
-			}
-			else if (msg.wParam == 1000) {
-				std::cout << "Leaving\n";
-				Sleep(700);
-				UnregisterHotKey(nullptr, 999);
-				UnregisterHotKey(nullptr, 1000);
-				return 0;
-			}
-		}
-	}
-	return 0;
-}
-//main5
-int main5() {
-	RegisterHotKey(nullptr, 100, MOD_ALT, 'Q');
-	RegisterHotKey(nullptr, 101, MOD_ALT, 'S');
-	LARGE_INTEGER tot;
-	QueryPerformanceFrequency(&tot);
-	MSG msg;
-	timeBeginPeriod(1);
 
-	while (1) {
-		GetMessage(&msg, nullptr, 0, 0);
-		if (msg.wParam == 100) {
-			std::cout << "Leaving\n";
-			Sleep(700);
-			return 0;
-		}
-		else {
-			std::cout << "input a sleeping number(ms) :\n";
-			int a;
-			std::cin >> a;
-			LARGE_INTEGER begin, end;
-			QueryPerformanceCounter(&begin);
-			Sleep(a);
-			QueryPerformanceCounter(&end);
-			std::cout << "begin: " << begin.QuadPart << ", end: " << end.QuadPart << '\n';
-			std::cout << "total seconds:" << 1.0 * (end.QuadPart - begin.QuadPart) / tot.QuadPart;
+std::string path = "C:\\Users\\Moonlight\\Desktop";
+bool IsRunAsAdmin() {
+	BOOL fRet = FALSE;
+	HANDLE hToken = NULL;
+	if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+		TOKEN_ELEVATION elevation;
+		DWORD dwSize;
+
+		if (GetTokenInformation(hToken, TokenElevation, &elevation, sizeof(elevation), &dwSize)) {
+			fRet = elevation.TokenIsElevated;
 		}
 	}
-	timeEndPeriod(1);
-	UnregisterHotKey(nullptr, 100);
-	UnregisterHotKey(nullptr, 101);
-	return 0;
+	if (hToken) {
+		CloseHandle(hToken);
+	}
+	return fRet;
 }
-//main6
 int reachfile(const std::string& command, const std::string& targetpath, json& j) {
 	int flag = std::system(command.c_str());
-	if (flag == 1) {
+	if (flag != 0) {
 		std::cerr << "flp转换失败.\n";
 		return -1;
 	}
@@ -169,14 +48,101 @@ int reachfile(const std::string& command, const std::string& targetpath, json& j
 	ijson.close();
 	return 0;
 }
-
-std::set<int> Note::scales;
+int reachfile(const std::string& targetpath, json& j) {
+	std::ifstream ijson(targetpath);
+	if (!ijson.is_open()) {
+		std::cerr << "Can't open file: " << targetpath << '\n';
+		return -1;
+	}
+	try {
+		ijson >> j;
+	}
+	catch (json::parse_error& e) {
+		std::cerr << "Parse_error: " << e.what() << '\n';
+		return -1;
+	}
+	ijson.close();
+	return 0;
+}
+int Note::scales[11] = { 0 };//存储各音阶音符数
 std::vector<Note> NoteList;
 int Level2Vk::mode = 1;
 std::map<std::pair<char, int>, WORD> Level2Vk::mp1;
-std::map<std::pair<char, int>, WORD> Level2Vk::mp2;
-int main() {
-	for (int i = 0; i < 6; i++) {
+std::map<std::pair<char, int>, WORD> Level2Vk::mp2;//另一种类的乐器，暂时留空
+std::mt19937 RandomDelay::gen((unsigned int)time(nullptr));
+std::normal_distribution<double> RandomDelay::dis(0.0, 3.04);// 期望为0.0，标准差为3.04的正态分布(90%落在[-5, 5]区间)
+int playOnce() {
+	
+	NoteList.clear();//清除音符列表
+
+	std::string exporterpath = "flp_exporter.exe";
+	std::string outpath = "out.json";
+
+	int reachMod; //flp2json
+	std::cout << "input your target file:\n";
+	std::string get;
+	std::cin >> get;
+	int searchGet = 0;
+	if (get.size() <= 4) {
+		std::cerr << "文件扩展名有误\n";
+		return -1;
+	}
+	if (get[get.size() - 3] == 'f' && get[get.size() - 2] == 'l' && get[get.size() - 1] == 'p') {
+		reachMod = 0;
+	}
+	else if (get[get.size() - 4] == 'j' && get[get.size() - 3] == 's' && get[get.size() - 2] == 'o' && get[get.size() - 1] == 'n') {
+		reachMod = 1;
+	}
+	else {
+		std::cerr << "文件扩展名有误\n";
+		return -1;
+	}
+	json j;
+	if (reachMod == 0) {
+		if (reachfile((exporterpath + ' ' + get + ' ' + outpath).c_str(), outpath, j) != 0) {
+			std::cerr << "程序已停止运行\n";
+			return -1;
+		}
+	}
+	else {
+		if (reachfile(outpath, j) != 0) {
+			std::cerr << "程序已停止运行\n";
+			return -1;
+		}
+	}
+
+	KeyList keys;
+
+	//print all json contents;
+	std::cout << "json内容(pitch, start/ms, end/ms)：\n(小写字母代表升调)\n";
+	for (int i = 0; i < j.size(); i++) {
+		std::cout << j[i]["pitch"] << ' ' << j[i]["start_ms"] << ' ' << j[i]["end_ms"] << '\n';
+	}
+	std::cout << "---------\n";
+	for (int i = 0; i < j.size(); i++) {
+		Note tmp(j[i]["pitch"], j[i]["start_ms"], j[i]["end_ms"]);
+		//tmp.printNote();
+		NoteList.push_back(tmp);
+	}
+	std::cout << "各音阶音符数(按音阶序号排序):\n";
+	for (int i = 0; i < 11; i++) { std::cout << Note::scales[i] << ' '; }
+	int Most = 0;
+	for (int i = 1; i < 11; i++) {
+		if (Note::scales[i] > Note::scales[Most])Most = i;
+	}
+	if (Most <= 1)Most = 2;
+	else if (Most >= 9)Most = 8;
+	
+	if (Note::scales[Most + 2] != 0 && Note::scales[Most + 2] >= Note::scales[Most - 2] && Note::scales[Most + 1] >= Note::scales[Most - 1]) {
+		Most++;
+	}
+	else if (Note::scales[Most - 2] != 0 && Note::scales[Most + 2] <= Note::scales[Most - 2] && Note::scales[Most + 1] <= Note::scales[Most - 1]) {
+		Most--;
+	}
+	std::cout << "\nMost: " << Most << '\n';
+	//return 0;
+	//mp1的按键映射,取Most为中，越界区域将被划入同阶
+	for (int i = 0; i < Most; i++) {
 		Level2Vk::mp1.insert({ {'C', i}, VK_OEM_COMMA });// ','
 		Level2Vk::mp1.insert({ {'D', i}, VK_OEM_PERIOD });// '.'
 		Level2Vk::mp1.insert({ {'E', i}, VK_OEM_2 });// '/'
@@ -191,7 +157,7 @@ int main() {
 		Level2Vk::mp1.insert({ {'g', i}, '0'});
 		Level2Vk::mp1.insert({ {'a', i}, VK_OEM_MINUS });// '-'
 	}
-	for (int i = 6; i < 7; i++) {
+	for (int i = Most; i < Most+1; i++) {
 		Level2Vk::mp1.insert({ {'C', i}, 'Z'});
 		Level2Vk::mp1.insert({ {'D', i}, 'X'});
 		Level2Vk::mp1.insert({ {'E', i}, 'C'});
@@ -206,7 +172,7 @@ int main() {
 		Level2Vk::mp1.insert({ {'g', i}, 'H' });
 		Level2Vk::mp1.insert({ {'a', i}, 'J' });
 	}
-	for (int i = 7; i < 10; i++) {
+	for (int i = Most+1; i < 11; i++) {
 		Level2Vk::mp1.insert({ {'C', i}, 'Q' });
 		Level2Vk::mp1.insert({ {'D', i}, 'W' });
 		Level2Vk::mp1.insert({ {'E', i}, 'E' });
@@ -221,45 +187,55 @@ int main() {
 		Level2Vk::mp1.insert({ {'g', i}, '6' });
 		Level2Vk::mp1.insert({ {'a', i}, '7' });
 	}
-	std::string exporterpath = "flp_exporter.exe";
-	std::string outpath = "out.json";
 
-	std::cout << "input your target file:\n";
-	std::string get;
-	std::cin >> get;
-	json j;
-	if (reachfile((exporterpath + ' ' + get + ' ' + outpath).c_str(), outpath, j) != 0) {
-		std::cerr << "程序已停止运行\n";
-		return -1;
+	//将音符压入keys序列
+	for (auto& i : NoteList) {
+		keys.pushInput(i);
 	}
 
-	KeyList keys;
-
-	//print all json contents;
-	for (int i = 0; i < j.size(); i++) {
-		std::cout << j[i]["pitch"] << ' ' << j[i]["start_ms"] << ' ' << j[i]["end_ms"] << '\n';
-	}
-	std::cout << "--------\n";
-	for (int i = 0; i < j.size(); i++) {
-		Note tmp(j[i]["pitch"], j[i]["start_ms"], j[i]["end_ms"]);
-		tmp.printNote();
-		keys.pushInput(tmp);
-	}
-	std::cout << "--------\n";
+	//return 0;
+	std::cout << "--------\n虚拟键码序列(排序前):\n";
 	keys.printKeyList();
-	std::cout << "-------\n";
+	std::cout << "-------\n已按delay排序:";
 	keys.sortself();
 	keys.printKeyList();
-	std::cout << "----------\n";
+	std::cout << "----------\n准备寻找第五人格进程\n";
 	HWND hd = FindWindowW(nullptr, L"第五人格");
 	if (!IsWindow(hd)) {
-		std::cerr << "Window not found\n";
+		std::cerr << "Window not found.\n";
 		return -1;
 	}
 	else {
+		std::cout << "Success!\n";
 		keys.print2hd(hd);
 	}
 	return 0;
+}
+int main() {
+	std::cout << "钢琴工具，支持输入flp文件与json文件\nflp文件将导出为out.json\n\n";
+	if (!IsRunAsAdmin()) {
+		std::cerr << "进程未拥有管理员权限，请重新启动\n";
+		return 0;
+	}
+	while (1) {
+		std::cout << "输入1进入选择，输入0退出：";
+		int get;
+		std::cin >> get;
+		if (get == 0) {
+			break;
+		}
+		else if(get == 1){
+			if (playOnce() != 0) {
+				std::cerr << "本次执行失败。\n\n";
+			}
+			else {
+				std::cout << "本次执行完毕。\n\n";
+			}
+		}
+		else {
+			continue;
+		}
+	}
 }
 /*
 int main() {

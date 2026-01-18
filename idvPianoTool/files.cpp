@@ -1,4 +1,5 @@
 #pragma once
+/*
 #include<windows.h>
 #include<string>
 #include "files.h"
@@ -35,3 +36,4 @@ std::wstring s2ws(const std::string& str) {
 	MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
 	return wstrTo;
 }
+*/

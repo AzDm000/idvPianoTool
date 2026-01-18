@@ -9,12 +9,27 @@
 #include <set>
 #include <fstream>
 #include <cstdlib>
+#include <random>
+#include <time.h>
+#include <math.h>
 #include "json.hpp"
-int print2hd(HWND hd, std::wstring in);
+//int print2hd(HWND hd, std::wstring in);
 
-std::wstring s2ws(const std::string& str);
+//std::wstring s2ws(const std::string& str);
 
-#pragma pack(push, 1)
+class RandomDelay {
+public:
+	static std::mt19937 gen;
+	static std::normal_distribution<double> dis;
+	static double randomDelay(void) {
+		double a = dis(gen);
+		if (abs(a) > 5)a = 0;
+		return a;
+	}
+};
+
+
+//#pragma pack(push, 1)
 class KeyInput {
 public:
 	DWORD dwFlag;
@@ -27,7 +42,7 @@ public:
 		std::cout << dwFlag << ' ' <<  wVk << ' ' << delay << '\n';
 	}
 };
-#pragma pack(pop)
+//#pragma pack(pop)
 
 class Level2Vk {
 public:
@@ -53,7 +68,8 @@ public:
 	int scale;
 	double start;
 	double end;
-	static std::set<int> scales;
+	//static std::set<int> scales;
+	static int scales[11];
 	Note(std::string l, double s, double e) {
 		level = l[0];
 		if (l[1] == '#') {
@@ -65,7 +81,8 @@ public:
 		}
 		start = s;
 		end = e;
-		scales.insert(scale);
+		//scales.insert(scale);
+		scales[scale]++;
 	}
 	void printNote(void) {
 		std::cout << level << ' ' << scale << ' ' << start << ' ' << end << '\n';
@@ -103,7 +120,7 @@ public:
 	}
 	int print2hd(HWND hd) {
 		if (!IsWindow(hd)) {
-			return 0;
+			return -1;
 		}
 		Sleep(100);
 		SetForegroundWindow(hd);
@@ -122,13 +139,18 @@ public:
 			A.ki.dwFlags = i.dwFlag;
 			A.ki.wVk = i.wVk;
 			QueryPerformanceCounter(&end);
-			deltaT = i.delay - 1000.0 * (end.QuadPart - TimeStart.QuadPart) / Fre.QuadPart;
+			deltaT = i.delay - 1000.0 * (end.QuadPart - TimeStart.QuadPart) / Fre.QuadPart + RandomDelay::randomDelay();
 			if (deltaT > 1) {
 				Sleep(deltaT);
+			}
+			if (i.dwFlag == 0) {
+				A.ki.dwFlags = KEYEVENTF_KEYUP;
+				SendInput(1, &A, sizeof(INPUT));
+				A.ki.dwFlags = 0;
 			}
 			SendInput(1, &A, sizeof(INPUT));
 		}
 		timeEndPeriod(1);
+		return 0;
 	}
 };
-
